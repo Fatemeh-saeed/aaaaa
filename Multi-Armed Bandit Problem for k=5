@@ -1,0 +1,56 @@
+
+% exercise(1):Multi-Armed Bandit Problem for k=5
+clc; clear all; close all;
+
+Environment
+    N= 2000              % Time steps per run: N=  2000
+    Nrun=    2000          % Number of runs= 1000
+    k=5                   %Number of arms
+
+initialization
+    AS= zeros(N,Nrun);                             %selecedAction
+    reward=zeros(N,Nrun);
+    optimalAction= zeros (1,Nrun );
+    ep=0.1                 % epsilon
+
+poliy and sim ; c= cycle 1: Nrun
+for c = 1 : Nrun
+    value= randn(1,k) ;                           %value of the arms
+    [~, optimalAction(c)]=max(value);
+    
+    counter=zeros(1,k);
+    Q= zeros(1,k);
+    
+    for  t = 1: N
+        
+        MAXQ= max( Q );
+        a = find( Q == MAXQ );
+        a = a(randi(numel(a) , 1 ));
+        
+        if rand < ep
+            a = randi(k, 1);
+        end
+        
+        AS ( t , c ) = a ;
+        reward(t , c)= value(a) + randn(1);
+        counter(a)=counter(a)+1;
+        Q(a) = Q(a)+((1/counter(a))* (reward(t , c)-Q(a)));
+    end
+    
+end
+
+avgreward = mean( reward, 2 );
+
+oap = zeros(N ,Nrun);
+for c = 1: Nrun
+    oap(: , c) =  (AS(: , c)== optimalAction(c));
+end
+oap= mean( oap, 2 );
+
+plot
+    fig = figure(1) ;
+    plot( avgreward  , 'LineWidth', 1 ) ;
+    xlabel ( ' time steps ' ) ;
+    ylabel ( ' avgreward ');
+    title('epsilon-greedy rewards');
+    legend('avgreward')
